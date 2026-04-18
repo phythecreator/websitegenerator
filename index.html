@@ -1,1 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base 44 - Gerador de Websites</title>
+    <style>
+        /* Importar fonte semelhante à da imagem */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #aed2e6 0%, #e0edf4 50%, #f4f7f9 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #111;
+        }
+
+        .header {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Usar a imagem fornecida para o logo */
+        .header img {
+            height: 35px;
+            object-fit: contain;
+        }
+
+        .hero {
+            margin-top: 60px;
+            max-width: 800px;
+            padding: 0 20px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 500;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .input-wrapper {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: left;
+            min-height: 140px;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            border: none;
+            resize: none;
+            font-size: 1.1rem;
+            font-family: inherit;
+            outline: none;
+            width: 100%;
+            flex-grow: 1;
+            background: transparent;
+            color: #333;
+        }
+
+        textarea::placeholder {
+            color: #888;
+        }
+
+        .build-btn {
+            background-color: #fc945c;
+            color: #000;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            align-self: flex-end;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .build-btn:hover {
+            background-color: #fb8344;
+        }
+
+        .suggestions {
+            margin-top: 50px;
+        }
+
+        .suggestions p {
+            font-size: 1rem;
+            color: #111;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .chip {
+            background: transparent;
+            border: 1px solid #777;
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            color: #111;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            background: rgba(0,0,0,0.05);
+            border-color: #333;
+        }
+
+        /* Área de Resultado */
+        .loading {
+            display: none;
+            margin-top: 25px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        #result-section {
+            width: 90%;
+            max-width: 1200px;
+            margin: 60px auto;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #result-section h2 {
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        #preview-frame {
+            width: 100%;
+            height: 700px;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <img src="imagem_2026-04-18_225741618.png" alt="Base 44 Logo">
+    </div>
+
+    <div class="hero">
+        <h1>Build powerful apps<br>and websites - today.</h1>
+        <p class="subtitle">Describe what you want and build it with Base44.</p>
+
+        <div class="input-wrapper">
+            <textarea id="promptInput" placeholder="Build me a tr..."></textarea>
+            <button class="build-btn" onclick="generateWebsite()">Build now &rarr;</button>
+        </div>
+
+        <div class="loading" id="loadingStatus">A trabalhar na tua ideia... isto pode demorar uns segundos.</div>
+
+        <div class="suggestions">
+            <p>Not sure where to start? Try one of these:</p>
+            <div class="chips">
+                <button class="chip" onclick="fillPrompt('Admin Dashboard')">Admin Dashboard</button>
+                <button class="chip" onclick="fillPrompt('Landing Page')">Landing Page</button>
+                <button class="chip" onclick="fillPrompt('Reporting Dashboard')">Reporting Dashboard</button>
+                <button class="chip" onclick="fillPrompt('Gaming Platform')">Gaming Platform</button>
+                <button class="chip" onclick="fillPrompt('Online Store')">Online Store</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-section">
+        <h2>O teu projeto foi gerado:</h2>
+        <iframe id="preview-frame"></iframe>
+    </div>
+
+    <script>
+        // Função para preencher a caixa de texto ao clicar numa sugestão
+        function fillPrompt(text) {
+            document.getElementById('promptInput').value = `Build me a ${text}`;
+        }
+
+        // Função principal de chamada à IA
+        async function generateWebsite() {
+            const userRequest = document.getElementById('promptInput').value.trim();
+            if (!userRequest) return;
+
+            // A chave da API fornecida
+            const apiKey = 'AIzaSyBeqIliv2LLWhKA4yqCT_9XAK3gtctw-z8';
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+            const loadingStatus = document.getElementById('loadingStatus');
+            const resultSection = document.getElementById('result-section');
+            const iframe = document.getElementById('preview-frame');
+
+            loadingStatus.style.display = 'block';
+            resultSection.style.display = 'none';
+
+            // Instrução dada à IA para garantir que devolve apenas código de um site pronto a funcionar
+            const systemPrompt = `És um programador web experiente. O utilizador pediu o seguinte site: "${userRequest}". 
+            Escreve o código completo num único ficheiro HTML (incluindo CSS interno e JS se necessário). 
+            Usa um design moderno, limpo e responsivo. 
+            IMPORTANTE: Devolve APENAS o código HTML puro. Não incluas blocos de markdown, \`\`\`html no início, nem texto a explicar o código. O resultado deve começar com <!DOCTYPE html> e acabar com </html>.`;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: systemPrompt }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'Erro desconhecido na API');
+                }
+
+                let generatedCode = data.candidates[0].content.parts[0].text;
+
+                // Limpeza de segurança caso a IA ainda envie formatação markdown
+                generatedCode = generatedCode.replace(/^```html\n?/g, '').replace(/```\n?$/g, '');
+
+                // Injecta o código gerado dentro da iFrame para pré-visualização segura
+                iframe.srcdoc = generatedCode;
+                resultSection.style.display = 'flex';
+
+            } catch (error) {
+                console.error('Falha na geração:', error);
+                alert(`Ocorreu um erro a gerar o site: ${error.message}`);
+            } finally {
+                loadingStatus.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
