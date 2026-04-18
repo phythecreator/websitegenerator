@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Base 44 - Gerador de Websites</title>
     <style>
-        /* Importar fonte semelhante à da imagem */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
         body {
@@ -19,21 +18,8 @@
             color: #111;
         }
 
-        .header {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Usar a imagem fornecida para o logo */
-        .header img {
-            height: 35px;
-            object-fit: contain;
-        }
-
         .hero {
-            margin-top: 60px;
+            margin-top: 80px; /* Ajustado agora que não há logo */
             max-width: 800px;
             padding: 0 20px;
             text-align: center;
@@ -82,10 +68,6 @@
             color: #333;
         }
 
-        textarea::placeholder {
-            color: #888;
-        }
-
         .build-btn {
             background-color: #fc945c;
             color: #000;
@@ -106,15 +88,15 @@
             background-color: #fb8344;
         }
 
-        .suggestions {
-            margin-top: 50px;
+        .loading {
+            display: none;
+            margin-top: 25px;
+            font-weight: 600;
+            color: #333;
         }
 
-        .suggestions p {
-            font-size: 1rem;
-            color: #111;
-            margin-bottom: 20px;
-            font-weight: 500;
+        .suggestions {
+            margin-top: 50px;
         }
 
         .chips {
@@ -123,7 +105,7 @@
             gap: 12px;
             justify-content: center;
             max-width: 700px;
-            margin: 0 auto;
+            margin: 20px auto;
         }
 
         .chip {
@@ -132,72 +114,44 @@
             border-radius: 20px;
             padding: 8px 18px;
             font-size: 0.9rem;
-            font-family: inherit;
             cursor: pointer;
-            color: #111;
-            transition: all 0.2s ease;
-        }
-
-        .chip:hover {
-            background: rgba(0,0,0,0.05);
-            border-color: #333;
-        }
-
-        /* Área de Resultado */
-        .loading {
-            display: none;
-            margin-top: 25px;
-            font-weight: 600;
-            color: #333;
         }
 
         #result-section {
-            width: 90%;
+            width: 95%;
             max-width: 1200px;
             margin: 60px auto;
             display: none;
             flex-direction: column;
-            align-items: center;
-        }
-
-        #result-section h2 {
-            margin-bottom: 20px;
-            font-weight: 500;
         }
 
         #preview-frame {
             width: 100%;
-            height: 700px;
-            border: none;
+            height: 800px;
+            border: 2px solid #ddd;
             border-radius: 12px;
             background: white;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <img src="imagem_2026-04-18_225741618.png" alt="Base 44 Logo">
-    </div>
 
     <div class="hero">
         <h1>Build powerful apps<br>and websites - today.</h1>
         <p class="subtitle">Describe what you want and build it with Base44.</p>
 
         <div class="input-wrapper">
-            <textarea id="promptInput" placeholder="Build me a tr..."></textarea>
+            <textarea id="promptInput" placeholder="Build me a travel blog..."></textarea>
             <button class="build-btn" onclick="generateWebsite()">Build now &rarr;</button>
         </div>
 
-        <div class="loading" id="loadingStatus">A trabalhar na tua ideia... isto pode demorar uns segundos.</div>
+        <div class="loading" id="loadingStatus">A gerar o teu código... por favor aguarda.</div>
 
         <div class="suggestions">
             <p>Not sure where to start? Try one of these:</p>
             <div class="chips">
                 <button class="chip" onclick="fillPrompt('Admin Dashboard')">Admin Dashboard</button>
                 <button class="chip" onclick="fillPrompt('Landing Page')">Landing Page</button>
-                <button class="chip" onclick="fillPrompt('Reporting Dashboard')">Reporting Dashboard</button>
                 <button class="chip" onclick="fillPrompt('Gaming Platform')">Gaming Platform</button>
                 <button class="chip" onclick="fillPrompt('Online Store')">Online Store</button>
             </div>
@@ -205,24 +159,22 @@
     </div>
 
     <div id="result-section">
-        <h2>O teu projeto foi gerado:</h2>
+        <h3>Preview do teu site:</h3>
         <iframe id="preview-frame"></iframe>
     </div>
 
     <script>
-        // Função para preencher a caixa de texto ao clicar numa sugestão
         function fillPrompt(text) {
             document.getElementById('promptInput').value = `Build me a ${text}`;
         }
 
-        // Função principal de chamada à IA
         async function generateWebsite() {
             const userRequest = document.getElementById('promptInput').value.trim();
             if (!userRequest) return;
 
-            // A chave da API fornecida
             const apiKey = 'AIzaSyBeqIliv2LLWhKA4yqCT_9XAK3gtctw-z8';
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            // Corrigido para a versão estável v1 e modelo flash
+            const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
             const loadingStatus = document.getElementById('loadingStatus');
             const resultSection = document.getElementById('result-section');
@@ -231,11 +183,8 @@
             loadingStatus.style.display = 'block';
             resultSection.style.display = 'none';
 
-            // Instrução dada à IA para garantir que devolve apenas código de um site pronto a funcionar
-            const systemPrompt = `És um programador web experiente. O utilizador pediu o seguinte site: "${userRequest}". 
-            Escreve o código completo num único ficheiro HTML (incluindo CSS interno e JS se necessário). 
-            Usa um design moderno, limpo e responsivo. 
-            IMPORTANTE: Devolve APENAS o código HTML puro. Não incluas blocos de markdown, \`\`\`html no início, nem texto a explicar o código. O resultado deve começar com <!DOCTYPE html> e acabar com </html>.`;
+            const systemPrompt = `Act as a professional web developer. Create a complete, modern, and high-quality website based on this request: "${userRequest}". 
+            Output ONLY the raw HTML/CSS/JS code in a single block. Do not use markdown backticks, explanations, or comments outside the code. The response must start with <!DOCTYPE html>.`;
 
             try {
                 const response = await fetch(endpoint, {
@@ -250,22 +199,24 @@
 
                 const data = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(data.error?.message || 'Erro desconhecido na API');
+                if (data.error) {
+                    throw new Error(data.error.message);
                 }
 
                 let generatedCode = data.candidates[0].content.parts[0].text;
+                
+                // Limpeza extra para garantir que não aparecem aspas de código no início/fim
+                generatedCode = generatedCode.replace(/^```html/i, '').replace(/```$/g, '').trim();
 
-                // Limpeza de segurança caso a IA ainda envie formatação markdown
-                generatedCode = generatedCode.replace(/^```html\n?/g, '').replace(/```\n?$/g, '');
-
-                // Injecta o código gerado dentro da iFrame para pré-visualização segura
                 iframe.srcdoc = generatedCode;
                 resultSection.style.display = 'flex';
+                
+                // Scroll suave para o resultado
+                window.scrollTo({ top: resultSection.offsetTop, behavior: 'smooth' });
 
             } catch (error) {
-                console.error('Falha na geração:', error);
-                alert(`Ocorreu um erro a gerar o site: ${error.message}`);
+                console.error('Erro:', error);
+                alert('Erro na API: ' + error.message);
             } finally {
                 loadingStatus.style.display = 'none';
             }
