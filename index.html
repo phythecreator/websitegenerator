@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base 44 | AI Generator</title>
+    <title>Base 44 | AI Builder</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
@@ -19,9 +19,8 @@
             color: #1a1a1a;
         }
 
-        /* Hero Section */
         .container {
-            margin-top: 100px;
+            margin-top: 80px;
             max-width: 900px;
             width: 90%;
             text-align: center;
@@ -41,7 +40,6 @@
             margin-bottom: 40px;
         }
 
-        /* Input Box */
         .prompt-card {
             background: #ffffff;
             border-radius: 24px;
@@ -51,7 +49,6 @@
             flex-direction: column;
             text-align: left;
             min-height: 160px;
-            transition: transform 0.2s;
         }
 
         textarea {
@@ -62,7 +59,6 @@
             outline: none;
             flex-grow: 1;
             margin-bottom: 10px;
-            color: #333;
         }
 
         .actions {
@@ -76,19 +72,19 @@
             border: none;
             border-radius: 30px;
             padding: 12px 28px;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
-        .btn-build:hover {
-            background-color: #f88a4d;
+        .loader {
+            display: none;
+            margin-top: 20px;
+            font-weight: 600;
+            color: #555;
         }
 
-        /* Suggestions */
         .suggestions {
-            margin-top: 60px;
+            margin-top: 40px;
         }
 
         .chips {
@@ -106,21 +102,13 @@
             padding: 8px 16px;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: 0.2s;
         }
 
-        .chip:hover {
-            background: #fff;
-            border-color: #333;
-        }
-
-        /* Preview Area */
         #preview-container {
             margin-top: 50px;
             width: 100%;
             display: none;
             flex-direction: column;
-            gap: 15px;
         }
 
         iframe {
@@ -131,13 +119,6 @@
             background: white;
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
         }
-
-        .loader {
-            display: none;
-            margin-top: 20px;
-            font-weight: 600;
-            color: #555;
-        }
     </style>
 </head>
 <body>
@@ -147,7 +128,7 @@
         <p class="tagline">Describe what you want and build it with Base44.</p>
 
         <div class="prompt-card">
-            <textarea id="userInput" placeholder="Build me a travel agency landing page with a modern look..."></textarea>
+            <textarea id="userInput" placeholder="Build me a landing page for..."></textarea>
             <div class="actions">
                 <button class="btn-build" onclick="generateSite()">Build now &rarr;</button>
             </div>
@@ -156,13 +137,12 @@
         <div class="loader" id="status">A criar o teu site... aguarda um momento.</div>
 
         <div class="suggestions">
-            <p>Not sure where to start? Try one of these:</p>
+            <p>Try one of these:</p>
             <div class="chips">
-                <button class="chip" onclick="setPrompt('Admin Dashboard')">Admin Dashboard</button>
                 <button class="chip" onclick="setPrompt('Personal Portfolio')">Personal Portfolio</button>
-                <button class="chip" onclick="setPrompt('E-commerce Store')">E-commerce Store</button>
-                <button class="chip" onclick="setPrompt('Restaurant Website')">Restaurant Website</button>
-                <button class="chip" onclick="setPrompt('SaaS Landing Page')">SaaS Landing Page</button>
+                <button class="chip" onclick="setPrompt('Online Store')">Online Store</button>
+                <button class="chip" onclick="setPrompt('Gaming Blog')">Gaming Blog</button>
+                <button class="chip" onclick="setPrompt('Restaurant Site')">Restaurant Site</button>
             </div>
         </div>
 
@@ -179,7 +159,7 @@
 
         async function generateSite() {
             const prompt = document.getElementById('userInput').value;
-            if(!prompt) return alert("Escreve algo primeiro!");
+            if(!prompt) return alert("Escreve algo!");
 
             const status = document.getElementById('status');
             const preview = document.getElementById('preview-container');
@@ -188,18 +168,20 @@
             status.style.display = "block";
             preview.style.display = "none";
 
+            // USANDO O MODELO E KEY DO TEU CURL
             const apiKey = "AIzaSyBeqIliv2LLWhKA4yqCT_9XAK3gtctw-z8";
-            // USANDO v1beta PARA MAIOR COMPATIBILIDADE COM O FLASH
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
             const payload = {
-                contents: [{
-                    parts: [{
-                        text: `Write the full code for a website: ${prompt}. 
-                        Return ONLY the HTML code including CSS/JS inside. 
-                        Do not include any explanations or markdown blocks like \`\`\`html.`
-                    }]
-                }]
+                "contents": [
+                    {
+                        "parts": [
+                            {
+                                "text": `Write the complete HTML code (including CSS and JS) for: ${prompt}. Return ONLY the raw code. No markdown, no comments.`
+                            }
+                        ]
+                    }
+                ]
             };
 
             try {
@@ -215,18 +197,18 @@
                     throw new Error(data.error.message);
                 }
 
-                let rawHTML = data.candidates[0].content.parts[0].text;
+                let html = data.candidates[0].content.parts[0].text;
 
-                // Limpar Markdown se a IA teimar em enviar
-                rawHTML = rawHTML.replace(/^```html/i, '').replace(/```$/g, '').trim();
+                // Limpar possíveis marcas de código markdown
+                html = html.replace(/^```html/i, '').replace(/```$/g, '').trim();
 
-                frame.srcdoc = rawHTML;
+                frame.srcdoc = html;
                 preview.style.display = "flex";
                 window.scrollTo({ top: preview.offsetTop, behavior: 'smooth' });
 
             } catch (err) {
                 console.error(err);
-                alert("Erro ao gerar: " + err.message);
+                alert("Erro: " + err.message);
             } finally {
                 status.style.display = "none";
             }
