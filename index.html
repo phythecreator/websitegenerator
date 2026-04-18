@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base 44 | Powered by Groq</title>
+    <title>Base 44 | AI Generator</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
@@ -11,298 +11,224 @@
             margin: 0;
             padding: 0;
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            /* Voltamos ao gradiente azul original */
+            background: linear-gradient(135deg, #aed2e6 0%, #e0edf4 50%, #f4f7f9 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #1a1a1a;
+            color: #111;
         }
 
         .container {
-            margin-top: 60px;
+            margin-top: 80px;
             max-width: 900px;
             width: 90%;
             text-align: center;
-            transition: all 0.5s ease;
         }
 
         h1 {
-            font-size: 4rem;
-            font-weight: 600;
+            font-size: 4.5rem;
+            font-weight: 500;
             line-height: 1.1;
-            margin-bottom: 15px;
-            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
         }
 
-        p.tagline {
+        .tagline {
             font-size: 1.2rem;
-            color: #555;
+            color: #333;
             margin-bottom: 40px;
         }
 
-        /* Input Cards */
         .prompt-card {
             background: #ffffff;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             text-align: left;
-            margin-bottom: 20px;
+            min-height: 160px;
         }
 
         textarea {
             border: none;
             resize: none;
             font-size: 1.1rem;
-            font-family: inherit;
             outline: none;
-            width: 100%;
-            min-height: 80px;
-            margin-bottom: 15px;
-            color: #333;
+            flex-grow: 1;
+            margin-bottom: 10px;
+            background: transparent;
         }
 
         .actions {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: flex-end;
         }
 
         .btn-build {
-            background-color: #000;
-            color: #fff;
+            background-color: #fc945c;
+            color: #000;
             border: none;
             border-radius: 30px;
             padding: 12px 28px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            transition: 0.2s;
         }
 
-        .btn-build:hover {
-            background-color: #333;
-            transform: translateY(-2px);
-        }
+        .btn-build:hover { background-color: #fb8344; }
 
-        /* Editor Section (Para alterar o site gerado) */
-        #editor-section {
+        /* Animação de Loading */
+        #loader {
             display: none;
             margin-top: 30px;
-            width: 100%;
-        }
-        
-        .refine-bar {
-            display: flex;
-            gap: 10px;
-            background: white;
-            padding: 10px;
-            border-radius: 50px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .refine-bar input {
-            flex-grow: 1;
-            border: none;
-            outline: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 30px;
-        }
-
-        /* Loading Animation */
-        .loader-wrapper {
-            display: none;
             flex-direction: column;
             align-items: center;
-            margin: 40px 0;
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(0,0,0,0.1);
-            border-top-color: #ff5e00;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0,0,0,0.1);
+            border-top-color: #fc945c;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-
-        .loading-text {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #444;
-            animation: pulse 1.5s infinite;
         }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        /* Preview Area */
+        /* Preview e Refinamento */
         #preview-container {
-            margin-top: 30px;
+            margin-top: 40px;
             width: 100%;
             display: none;
             flex-direction: column;
+            gap: 20px;
         }
 
         iframe {
             width: 100%;
-            height: 75vh;
+            height: 800px;
             border: none;
             border-radius: 16px;
             background: white;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
         }
 
+        .refine-box {
+            background: white;
+            padding: 15px;
+            border-radius: 50px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .refine-box input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            padding: 0 15px;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container" id="main-container">
-        <h1>Constroi com a Groq.</h1>
-        <p class="tagline">Sites premium, interativos e rápidos. Diz o que queres.</p>
+    <div class="container">
+        <h1>Build powerful apps<br>and websites - today.</h1>
+        <p class="tagline">Describe what you want and build it with Base44.</p>
 
-        <div class="prompt-card" id="initial-card">
-            <textarea id="userInput" placeholder="Ex: Um site moderno para um ginásio de crossfit, com secção de treinadores e tabela de preços..."></textarea>
+        <div class="prompt-card" id="main-input">
+            <textarea id="userInput" placeholder="Ex: Um site moderno para uma clínica dentária com imagens reais e botões de contacto..."></textarea>
             <div class="actions">
-                <span style="font-size: 0.9rem; color: #888;">Impulsionado por Llama 3 70B</span>
-                <button class="btn-build" onclick="generateSite(false)">Gerar Site &rarr;</button>
+                <button class="btn-build" onclick="generateSite(false)">Build now &rarr;</button>
             </div>
         </div>
 
-        <div class="loader-wrapper" id="loader">
+        <div id="loader">
             <div class="spinner"></div>
-            <div class="loading-text" id="loading-msg">A pensar na estrutura...</div>
+            <p id="loader-text" style="margin-top: 15px; font-weight: 500;">A desenhar o teu site...</p>
         </div>
 
         <div id="preview-container">
-            <iframe id="outputFrame"></iframe>
-            
-            <div id="editor-section">
-                <p style="text-align: left; font-weight: 500; margin-bottom: 10px;">Não gostaste de algo? Pede para alterar:</p>
-                <div class="refine-bar">
-                    <input type="text" id="refineInput" placeholder="Ex: Muda a cor de fundo para azul escuro e troca a imagem...">
-                    <button class="btn-build" style="padding: 10px 20px;" onclick="generateSite(true)">Atualizar</button>
-                </div>
+            <div class="refine-box">
+                <input type="text" id="refineInput" placeholder="O que queres mudar? Ex: 'Muda a cor para verde' ou 'Adiciona mais imagens'">
+                <button class="btn-build" style="padding: 10px 20px;" onclick="generateSite(true)">Alterar</button>
             </div>
+            <iframe id="outputFrame"></iframe>
         </div>
     </div>
 
     <script>
-        // Histórico de conversação para a IA lembrar o site atual
         let chatHistory = [];
+        const loadingTexts = ["A estruturar o HTML...", "A polir o design...", "A carregar imagens reais...", "Quase pronto!"];
 
-        // Mensagens divertidas para a animação
-        const loadingMessages = [
-            "A invocar a inteligência artificial...",
-            "A desenhar a interface e botões...",
-            "A procurar imagens fantásticas...",
-            "A escrever o código HTML e CSS...",
-            "A polir os detalhes..."
-        ];
+        async function generateSite(isRefinement) {
+            const prompt = isRefinement ? document.getElementById('refineInput').value : document.getElementById('userInput').value;
+            if(!prompt) return;
 
-        let msgInterval;
-
-        async function generateSite(isRefinement = false) {
-            const inputField = isRefinement ? document.getElementById('refineInput') : document.getElementById('userInput');
-            const prompt = inputField.value.trim();
-            
-            if(!prompt) return alert("Escreve algo primeiro!");
-
-            // UI Updates
             const loader = document.getElementById('loader');
             const preview = document.getElementById('preview-container');
-            const editor = document.getElementById('editor-section');
             const frame = document.getElementById('outputFrame');
-            const msgElement = document.getElementById('loading-msg');
+            const mainInput = document.getElementById('main-input');
 
             loader.style.display = "flex";
-            if (!isRefinement) preview.style.display = "none";
-            
-            // Rodar mensagens de loading
-            let msgIndex = 0;
-            msgElement.innerText = loadingMessages[0];
-            clearInterval(msgInterval);
-            msgInterval = setInterval(() => {
-                msgIndex = (msgIndex + 1) % loadingMessages.length;
-                msgElement.innerText = loadingMessages[msgIndex];
-            }, 2000);
+            if(!isRefinement) {
+                mainInput.style.display = "none";
+                preview.style.display = "none";
+            }
 
-            // API da GROQ e a tua Chave
+            // Ciclo de mensagens no loader
+            let i = 0;
+            const interval = setInterval(() => {
+                document.getElementById('loader-text').innerText = loadingTexts[i % loadingTexts.length];
+                i++;
+            }, 1500);
+
+            // MODELO ATUALIZADO (llama-3.3-70b-versatile)
             const apiKey = "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";
             const url = "https://api.groq.com/openai/v1/chat/completions";
 
-            // Se for a primeira vez, inicializa a memória da IA com instruções restritas de qualidade
             if (!isRefinement) {
-                chatHistory = [
-                    { 
-                        role: "system", 
-                        content: `You are an elite, high-end web developer and UI/UX designer. 
-                        Your job is to generate FULL, self-contained HTML files (with CSS/JS inside).
-                        RULES:
-                        1. DO NOT be generic. Use modern design trends (glassmorphism, subtle shadows, gradients, rounded corners).
-                        2. Use beautiful typography (import Google Fonts like Inter or Roboto).
-                        3. Add interactive elements (buttons with hover effects, transitions).
-                        4. INCLUDE REAL IMAGES using placeholder services like: https://picsum.photos/seed/{random_word}/800/600 or https://images.unsplash.com/photo-XXX. 
-                        5. OUTPUT ONLY PURE HTML. NO markdown, NO \`\`\`html tags, NO explanations. Start exactly with <!DOCTYPE html>.` 
-                    }
-                ];
-                // Esconder caixa grande inicial
-                document.getElementById('initial-card').style.display = "none";
+                chatHistory = [{
+                    role: "system",
+                    content: "És um web designer sénior. Gera sites completos (HTML/CSS/JS num único bloco). Usa imagens REAIS do Unsplash ou Picsum. Usa designs modernos, botões com animação e cores vibrantes. Responde APENAS com o código, começando em <!DOCTYPE html>."
+                }];
             }
 
-            // Adiciona o pedido do utilizador à memória
-            const instruction = isRefinement ? `Modify the existing code based on this request: "${prompt}". Return the full updated HTML.` : `Create this website: "${prompt}"`;
-            chatHistory.push({ role: "user", content: instruction });
-
-            const payload = {
-                model: "llama3-70b-8192", // Llama 3 70B é o melhor modelo da Groq para código
-                messages: chatHistory,
-                temperature: 0.6
-            };
+            chatHistory.push({ role: "user", content: isRefinement ? `Altera o site anterior: ${prompt}` : `Cria este site: ${prompt}` });
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify(payload)
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: chatHistory,
+                        temperature: 0.7
+                    })
                 });
 
                 const data = await response.json();
+                let code = data.choices[0].message.content;
                 
-                if (data.error) {
-                    throw new Error(data.error.message);
-                }
+                // Limpeza básica de markdown
+                code = code.replace(/```html/gi, '').replace(/```/g, '').trim();
 
-                let generatedCode = data.choices[0].message.content;
-
-                // Limpeza agressiva do Llama 3 (ele adora usar markdown mesmo quando lhe dizemos para não usar)
-                generatedCode = generatedCode.replace(/^[\s\S]*?(<!DOCTYPE html>)/i, '$1'); // Corta tudo antes do doctype
-                generatedCode = generatedCode.replace(/```html/gi, '').replace(/```/g, '').trim();
-
-                // Guarda a resposta na memória para edições futuras
-                chatHistory.push({ role: "assistant", content: generatedCode });
-
-                // Renderiza o site
-                frame.srcdoc = generatedCode;
+                chatHistory.push({ role: "assistant", content: code });
+                frame.srcdoc = code;
                 preview.style.display = "flex";
-                editor.style.display = "block";
-                
-                inputField.value = ""; // limpa a caixa de texto
+                if(isRefinement) document.getElementById('refineInput').value = "";
 
             } catch (err) {
-                console.error(err);
-                alert("Erro da Groq: " + err.message);
-                document.getElementById('initial-card').style.display = "flex"; // volta a mostrar a caixa inicial em caso de erro
+                alert("Erro: " + err.message);
+                mainInput.style.display = "flex";
             } finally {
                 loader.style.display = "none";
-                clearInterval(msgInterval);
+                clearInterval(interval);
             }
         }
     </script>
