@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base 44 | AI Builder</title>
+    <title>Base 44 | Powered by Groq</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #b0d4e9 0%, #e1eef5 50%, #f4f7f9 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -20,35 +20,37 @@
         }
 
         .container {
-            margin-top: 80px;
+            margin-top: 60px;
             max-width: 900px;
             width: 90%;
             text-align: center;
+            transition: all 0.5s ease;
         }
 
         h1 {
-            font-size: 4.5rem;
-            font-weight: 500;
+            font-size: 4rem;
+            font-weight: 600;
             line-height: 1.1;
-            margin-bottom: 20px;
-            letter-spacing: -2px;
+            margin-bottom: 15px;
+            letter-spacing: -1.5px;
         }
 
         p.tagline {
             font-size: 1.2rem;
-            color: #444;
+            color: #555;
             margin-bottom: 40px;
         }
 
+        /* Input Cards */
         .prompt-card {
             background: #ffffff;
-            border-radius: 24px;
+            border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
             text-align: left;
-            min-height: 160px;
+            margin-bottom: 20px;
         }
 
         textarea {
@@ -57,55 +59,90 @@
             font-size: 1.1rem;
             font-family: inherit;
             outline: none;
-            flex-grow: 1;
-            margin-bottom: 10px;
+            width: 100%;
+            min-height: 80px;
+            margin-bottom: 15px;
+            color: #333;
         }
 
         .actions {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .btn-build {
-            background-color: #ff9d66;
-            color: #000;
+            background-color: #000;
+            color: #fff;
             border: none;
             border-radius: 30px;
             padding: 12px 28px;
             font-weight: 600;
             cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
         }
 
-        .loader {
+        .btn-build:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+        }
+
+        /* Editor Section (Para alterar o site gerado) */
+        #editor-section {
             display: none;
-            margin-top: 20px;
-            font-weight: 600;
-            color: #555;
+            margin-top: 30px;
+            width: 100%;
         }
-
-        .suggestions {
-            margin-top: 40px;
-        }
-
-        .chips {
+        
+        .refine-bar {
             display: flex;
-            flex-wrap: wrap;
             gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
-        .chip {
-            background: rgba(255,255,255,0.4);
-            border: 1px solid #999;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            cursor: pointer;
+        .refine-bar input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 30px;
         }
 
+        /* Loading Animation */
+        .loader-wrapper {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0,0,0,0.1);
+            border-top-color: #ff5e00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Preview Area */
         #preview-container {
-            margin-top: 50px;
+            margin-top: 30px;
             width: 100%;
             display: none;
             flex-direction: column;
@@ -113,81 +150,127 @@
 
         iframe {
             width: 100%;
-            height: 800px;
+            height: 75vh;
             border: none;
             border-radius: 16px;
             background: white;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
         }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Build powerful apps<br>and websites - today.</h1>
-        <p class="tagline">Describe what you want and build it with Base44.</p>
+    <div class="container" id="main-container">
+        <h1>Constroi com a Groq.</h1>
+        <p class="tagline">Sites premium, interativos e rápidos. Diz o que queres.</p>
 
-        <div class="prompt-card">
-            <textarea id="userInput" placeholder="Build me a landing page for..."></textarea>
+        <div class="prompt-card" id="initial-card">
+            <textarea id="userInput" placeholder="Ex: Um site moderno para um ginásio de crossfit, com secção de treinadores e tabela de preços..."></textarea>
             <div class="actions">
-                <button class="btn-build" onclick="generateSite()">Build now &rarr;</button>
+                <span style="font-size: 0.9rem; color: #888;">Impulsionado por Llama 3 70B</span>
+                <button class="btn-build" onclick="generateSite(false)">Gerar Site &rarr;</button>
             </div>
         </div>
 
-        <div class="loader" id="status">A criar o teu site... aguarda um momento.</div>
-
-        <div class="suggestions">
-            <p>Try one of these:</p>
-            <div class="chips">
-                <button class="chip" onclick="setPrompt('Personal Portfolio')">Personal Portfolio</button>
-                <button class="chip" onclick="setPrompt('Online Store')">Online Store</button>
-                <button class="chip" onclick="setPrompt('Gaming Blog')">Gaming Blog</button>
-                <button class="chip" onclick="setPrompt('Restaurant Site')">Restaurant Site</button>
-            </div>
+        <div class="loader-wrapper" id="loader">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loading-msg">A pensar na estrutura...</div>
         </div>
 
         <div id="preview-container">
-            <h3>Website Gerado:</h3>
             <iframe id="outputFrame"></iframe>
+            
+            <div id="editor-section">
+                <p style="text-align: left; font-weight: 500; margin-bottom: 10px;">Não gostaste de algo? Pede para alterar:</p>
+                <div class="refine-bar">
+                    <input type="text" id="refineInput" placeholder="Ex: Muda a cor de fundo para azul escuro e troca a imagem...">
+                    <button class="btn-build" style="padding: 10px 20px;" onclick="generateSite(true)">Atualizar</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        function setPrompt(text) {
-            document.getElementById('userInput').value = "Build me a " + text;
-        }
+        // Histórico de conversação para a IA lembrar o site atual
+        let chatHistory = [];
 
-        async function generateSite() {
-            const prompt = document.getElementById('userInput').value;
-            if(!prompt) return alert("Escreve algo!");
+        // Mensagens divertidas para a animação
+        const loadingMessages = [
+            "A invocar a inteligência artificial...",
+            "A desenhar a interface e botões...",
+            "A procurar imagens fantásticas...",
+            "A escrever o código HTML e CSS...",
+            "A polir os detalhes..."
+        ];
 
-            const status = document.getElementById('status');
+        let msgInterval;
+
+        async function generateSite(isRefinement = false) {
+            const inputField = isRefinement ? document.getElementById('refineInput') : document.getElementById('userInput');
+            const prompt = inputField.value.trim();
+            
+            if(!prompt) return alert("Escreve algo primeiro!");
+
+            // UI Updates
+            const loader = document.getElementById('loader');
             const preview = document.getElementById('preview-container');
+            const editor = document.getElementById('editor-section');
             const frame = document.getElementById('outputFrame');
+            const msgElement = document.getElementById('loading-msg');
 
-            status.style.display = "block";
-            preview.style.display = "none";
+            loader.style.display = "flex";
+            if (!isRefinement) preview.style.display = "none";
+            
+            // Rodar mensagens de loading
+            let msgIndex = 0;
+            msgElement.innerText = loadingMessages[0];
+            clearInterval(msgInterval);
+            msgInterval = setInterval(() => {
+                msgIndex = (msgIndex + 1) % loadingMessages.length;
+                msgElement.innerText = loadingMessages[msgIndex];
+            }, 2000);
 
-            // USANDO O MODELO E KEY DO TEU CURL
-            const apiKey = "AIzaSyBeqIliv2LLWhKA4yqCT_9XAK3gtctw-z8";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+            // API da GROQ e a tua Chave
+            const apiKey = "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";
+            const url = "https://api.groq.com/openai/v1/chat/completions";
+
+            // Se for a primeira vez, inicializa a memória da IA com instruções restritas de qualidade
+            if (!isRefinement) {
+                chatHistory = [
+                    { 
+                        role: "system", 
+                        content: `You are an elite, high-end web developer and UI/UX designer. 
+                        Your job is to generate FULL, self-contained HTML files (with CSS/JS inside).
+                        RULES:
+                        1. DO NOT be generic. Use modern design trends (glassmorphism, subtle shadows, gradients, rounded corners).
+                        2. Use beautiful typography (import Google Fonts like Inter or Roboto).
+                        3. Add interactive elements (buttons with hover effects, transitions).
+                        4. INCLUDE REAL IMAGES using placeholder services like: https://picsum.photos/seed/{random_word}/800/600 or https://images.unsplash.com/photo-XXX. 
+                        5. OUTPUT ONLY PURE HTML. NO markdown, NO \`\`\`html tags, NO explanations. Start exactly with <!DOCTYPE html>.` 
+                    }
+                ];
+                // Esconder caixa grande inicial
+                document.getElementById('initial-card').style.display = "none";
+            }
+
+            // Adiciona o pedido do utilizador à memória
+            const instruction = isRefinement ? `Modify the existing code based on this request: "${prompt}". Return the full updated HTML.` : `Create this website: "${prompt}"`;
+            chatHistory.push({ role: "user", content: instruction });
 
             const payload = {
-                "contents": [
-                    {
-                        "parts": [
-                            {
-                                "text": `Write the complete HTML code (including CSS and JS) for: ${prompt}. Return ONLY the raw code. No markdown, no comments.`
-                            }
-                        ]
-                    }
-                ]
+                model: "llama3-70b-8192", // Llama 3 70B é o melhor modelo da Groq para código
+                messages: chatHistory,
+                temperature: 0.6
             };
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
                     body: JSON.stringify(payload)
                 });
 
@@ -197,20 +280,29 @@
                     throw new Error(data.error.message);
                 }
 
-                let html = data.candidates[0].content.parts[0].text;
+                let generatedCode = data.choices[0].message.content;
 
-                // Limpar possíveis marcas de código markdown
-                html = html.replace(/^```html/i, '').replace(/```$/g, '').trim();
+                // Limpeza agressiva do Llama 3 (ele adora usar markdown mesmo quando lhe dizemos para não usar)
+                generatedCode = generatedCode.replace(/^[\s\S]*?(<!DOCTYPE html>)/i, '$1'); // Corta tudo antes do doctype
+                generatedCode = generatedCode.replace(/```html/gi, '').replace(/```/g, '').trim();
 
-                frame.srcdoc = html;
+                // Guarda a resposta na memória para edições futuras
+                chatHistory.push({ role: "assistant", content: generatedCode });
+
+                // Renderiza o site
+                frame.srcdoc = generatedCode;
                 preview.style.display = "flex";
-                window.scrollTo({ top: preview.offsetTop, behavior: 'smooth' });
+                editor.style.display = "block";
+                
+                inputField.value = ""; // limpa a caixa de texto
 
             } catch (err) {
                 console.error(err);
-                alert("Erro: " + err.message);
+                alert("Erro da Groq: " + err.message);
+                document.getElementById('initial-card').style.display = "flex"; // volta a mostrar a caixa inicial em caso de erro
             } finally {
-                status.style.display = "none";
+                loader.style.display = "none";
+                clearInterval(msgInterval);
             }
         }
     </script>
